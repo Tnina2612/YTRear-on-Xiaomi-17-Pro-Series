@@ -1,10 +1,19 @@
 # YTRear
 
+**English** · [Tiếng Việt](README.vi.md)
+
+[![Latest release](https://img.shields.io/github/v/release/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series?style=flat-square&label=release)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases)
+[![CI](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/ci.yml)
+[![Release workflow](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/release.yml)
+[![License](https://img.shields.io/github/license/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series?style=flat-square)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/total?style=flat-square)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases)
+[![Platform](https://img.shields.io/badge/platform-Android%2016%20%2F%20HyperOS-3ddc84?style=flat-square&logo=android&logoColor=white)](#install)
+
 > **Maintained fork.** This repository is a fork of
 > [megadonkatsu/YTRear](https://github.com/megadonkatsu/YTRear) with fixes and features added on
 > top. The original repository is no longer maintained: its owner is inactive and does not respond
 > to issues or pull requests. Please report bugs and open pull requests in
-> [this fork](https://github.com/Tnina2612/YTRear) instead of upstream.
+> [this fork](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series) instead of upstream.
 
 The fork keeps the original rear-screen proxying approach and adds several practical improvements:
 
@@ -24,8 +33,8 @@ main display is off. Runs on a locked, non-rooted phone — no Shizuku, no privi
 Latest public release: **1.5.1** (`versionCode 19`) — auto-detect the most recently active player or
 pick any specific app, with a consolidated setup checklist, firmware verification, and Vietnamese
 localization. See the [changelog](CHANGELOG.md) for what changed, and
-[releases](https://github.com/Tnina2612/YTRear/releases) for the signed APK. Version 1.2 remains the
-tagged stable baseline.
+[releases](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases) for the signed APK.
+Version 1.2 remains the tagged stable baseline.
 
 ## What's new in 1.5.1
 
@@ -136,7 +145,7 @@ Selected player's MediaSession
 
 ## Install
 
-Download the APK from the [latest release](https://github.com/Tnina2612/YTRear/releases) and
+Download the APK from the [latest release](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases) and
 sideload it — copy it to the phone and tap it, or `adb install -r YTRear-1.5.1-debug.apk`. HyperOS
 will ask you to allow installs from whichever app you opened it with. Each release ships a
 `.sha256` file; check it against your download before installing.
@@ -225,11 +234,37 @@ The 1.5.1 release APK is also archived locally at `releases/YTRear-1.5.1-debug.a
 `com.luna.music` version 1.5.1 (`versionCode 19`) and upgrades over 1.5.0 while keeping app data and
 permissions.
 
+### Releasing
+
+The **Release** workflow runs on every push to `main`. It reads `versionName` and `versionCode` from
+`app/build.gradle.kts`, builds the debug APK, creates the `v<version>` tag when it does not exist,
+and publishes a GitHub Release with the APK and its `.sha256`. If that release already exists, the
+workflow exits without rebuilding. If the tag exists on a different commit, it stops with an error
+instead of moving the tag.
+
+Run it manually from **Actions** → **Release** → **Run workflow** after a version bump. If a stale
+tag from an earlier attempt exists, delete it first with `git tag -d vX.Y.Z` and
+`git push origin :refs/tags/vX.Y.Z`.
+
 ## Package identity
 
 The build sets `applicationId` to a package name that is on the firmware's rear-music map, while
 the Kotlin namespace stays `dev.ytrear.app`. Android cannot install the genuine owner of that
 package alongside this build. Use it only on a device you own, for interoperability testing.
+
+## Issues and contributions
+
+The upstream repository is inactive. Report bugs, request features, and send pull requests in
+[this fork's issue tracker](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/issues).
+If the Issues tab is unavailable, leave a comment on the latest release.
+
+If YTRear is useful, a star on the repository is appreciated.
+
+## License
+
+The fork's original changes are released under the [MIT License](LICENSE). The upstream project did
+not include a license file, so upstream code remains subject to its original author's rights; see
+[NOTICE](NOTICE) for details.
 
 ## Docs
 

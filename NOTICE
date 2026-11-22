@@ -1,0 +1,12 @@
+YTRear fork notice
+
+This repository is a fork of https://github.com/megadonkatsu/YTRear.
+
+The upstream project did not include a license file when this fork was created.
+The MIT license in LICENSE covers the fork's original changes, documentation,
+and build tooling. It is not intended to relicense upstream code, and this fork
+does not claim ownership of the original YTRear work. Upstream code remains
+subject to its original author's rights.
+
+If you are the upstream author and would like the attribution or licensing
+handled differently, please open an issue in this repository.

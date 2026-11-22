@@ -1,0 +1,148 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from Gradle
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' app/build.gradle.kts | head -n1)"
+          VERSION_CODE="$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+).*/\1/p' app/build.gradle.kts | head -n1)"
+          if [ -z "$VERSION" ] || [ -z "$VERSION_CODE" ]; then
+            echo "::error::Could not read versionName/versionCode from app/build.gradle.kts"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "Detected YTRear $VERSION (versionCode $VERSION_CODE)"
+
+      - name: Check for an existing release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release $TAG already exists; nothing to publish."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the tag target
+        if: steps.release.outputs.exists == 'false'
+        env:
+          TAG: v${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_SHA="$(git ls-remote --tags origin "refs/tags/${TAG}^{}" | awk '{print $1}' | head -n1)"
+          if [ -z "$TAG_SHA" ]; then
+            TAG_SHA="$(git ls-remote --tags origin "refs/tags/${TAG}" | awk '{print $1}' | head -n1)"
+          fi
+          if [ -n "$TAG_SHA" ] && [ "$TAG_SHA" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag ${TAG} points to ${TAG_SHA}, not ${GITHUB_SHA}. Delete and recreate the tag before releasing."
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        if: steps.release.outputs.exists == 'false'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        if: steps.release.outputs.exists == 'false'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build and lint debug APK
+        if: steps.release.outputs.exists == 'false'
+        run: ./gradlew :app:assembleDebug :app:lintDebug --stacktrace
+
+      - name: Prepare APK and checksum
+        if: steps.release.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/YTRear-${VERSION}-debug.apk"
+          cd dist
+          sha256sum "YTRear-${VERSION}-debug.apk" > "YTRear-${VERSION}-debug.apk.sha256"
+          sha256sum -c "YTRear-${VERSION}-debug.apk.sha256"
+
+      - name: Build release notes
+        if: steps.release.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          awk -v ver="$VERSION" '
+            $0 == "## " ver || index($0, "## " ver " ") == 1 { capture=1; next }
+            capture && substr($0, 1, 3) == "## " { exit }
+            capture { print }
+          ' CHANGELOG.md > changelog-section.md
+          {
+            echo "## YTRear ${VERSION}"
+            echo
+            echo "Rear-screen music controls for the Xiaomi 17 Pro series."
+            echo
+            echo "- Version: \`${VERSION}\` (versionCode \`${VERSION_CODE}\`)"
+            echo "- Package: \`com.luna.music\`"
+            echo "- Built from \`${GITHUB_SHA}\`"
+            echo
+            if [ -s changelog-section.md ]; then
+              echo "### Changes"
+              echo
+              cat changelog-section.md
+              echo
+            fi
+            echo "### Download"
+            echo
+            echo "Install \`YTRear-${VERSION}-debug.apk\`, then verify it against the attached \`.sha256\` file."
+          } > release-notes.md
+
+      - name: Create tag and publish release
+        if: steps.release.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "YTRear ${VERSION}" \
+            --notes-file release-notes.md \
+            "dist/YTRear-${VERSION}-debug.apk" \
+            "dist/YTRear-${VERSION}-debug.apk.sha256"
+          gh release view "$TAG" --json url --jq .url

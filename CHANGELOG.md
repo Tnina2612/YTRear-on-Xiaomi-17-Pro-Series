@@ -17,6 +17,11 @@
   restarts.
 - Localized the foreground-service channel/title/body, the proxy notification channel, and the
   media notification actions.
+- Added English and Vietnamese READMEs with release/CI/license badges, plus an MIT license for the
+  fork's original changes and a NOTICE covering the unlicensed upstream project.
+- Added a **Release** GitHub Actions workflow that reads the Gradle version, builds the debug APK,
+  creates the matching `v<version>` tag, and publishes the GitHub Release with the APK and
+  `.sha256`.
 - Bumped the release to version 1.5.1 (`versionCode 19`). Upgrading from 1.5.0 keeps app data,
   notification access, and the saved player selection.
 
