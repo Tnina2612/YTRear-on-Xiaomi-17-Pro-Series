@@ -1,13 +1,13 @@
 # YTRear
 
-**English** · [Tiếng Việt](README.vi.md)
-
 [![Latest release](https://img.shields.io/github/v/release/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series?style=flat-square&label=release)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases)
 [![CI](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/ci.yml)
 [![Release workflow](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/actions/workflows/release.yml)
 [![License](https://img.shields.io/github/license/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series?style=flat-square)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/total?style=flat-square)](https://github.com/Tnina2612/YTRear-on-Xiaomi-17-Pro-Series/releases)
 [![Platform](https://img.shields.io/badge/platform-Android%2016%20%2F%20HyperOS-3ddc84?style=flat-square&logo=android&logoColor=white)](#install)
+
+**English** · [Tiếng Việt](README.vi.md)
 
 > **Maintained fork.** This repository is a fork of
 > [megadonkatsu/YTRear](https://github.com/megadonkatsu/YTRear) with fixes and features added on
